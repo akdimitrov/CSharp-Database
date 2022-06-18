@@ -12,6 +12,6 @@ GO
 
 CREATE TRIGGER tr_DeletedEmployees ON Employees FOR DELETE
 AS
-	INSERT INTO Deleted_Employees (EmployeeId, FirstName, LastName, MiddleName, JobTitle, DepartmentId, Salary)
-	SELECT EmployeeID, FirstName, LastName, MiddleName, JobTitle, DepartmentID, Salary FROM deleted
+	INSERT INTO Deleted_Employees (FirstName, LastName, MiddleName, JobTitle, DepartmentId, Salary)
+	SELECT FirstName, LastName, MiddleName, JobTitle, DepartmentID, Salary FROM deleted
 GO
