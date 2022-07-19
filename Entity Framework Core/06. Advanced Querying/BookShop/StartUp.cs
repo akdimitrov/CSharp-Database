@@ -16,39 +16,58 @@
             using var db = new BookShopContext();
             DbInitializer.ResetDatabase(db);
 
+            // ---Task 02. Age Restriction
             //string ageGroup = Console.ReadLine();
             //Console.WriteLine(GetBooksByAgeRestriction(db, ageGroup));
-
+            
+            // ---Task 03. Golden Books
             //Console.WriteLine(GetGoldenBooks(db));
 
+            // ---Task 04. Books by Price
             //Console.WriteLine(GetBooksByPrice(db));
 
+            // ---Task 05. Not Released In
             //int year = int.Parse(Console.ReadLine());
             //Console.WriteLine(GetBooksNotReleasedIn(db, year));
 
+            // ---Task 06. Book Titles by Category
             //string categories = Console.ReadLine();
             //Console.WriteLine(GetBooksByCategory(db, categories));
 
+            // ---Task 07. Released Before Date
             //string date = Console.ReadLine();
             //Console.WriteLine(GetBooksReleasedBefore(db, date));
 
+            // ---Task 08. Author Search
             //string input = Console.ReadLine();
             //Console.WriteLine(GetAuthorNamesEndingIn(db, input));
 
+            // ---Task 09. Book Search
             //string input = Console.ReadLine();
             //Console.WriteLine(GetBookTitlesContaining(db, input));
 
+            // ---Task 10. Book Search by Author
             //string input = Console.ReadLine();
             //Console.WriteLine(GetBooksByAuthor(db, input));
 
+            // ---Task 11. Count Books
             //int lengthCheck = int.Parse(Console.ReadLine());
             //Console.WriteLine(CountBooks(db, lengthCheck));
 
+            // ---Task 12. Total Book Copies
             //Console.WriteLine(CountCopiesByAuthor(db));
 
+            // ---Task 13. Profit by Category
             //Console.WriteLine(GetTotalProfitByCategory(db));
 
-            Console.WriteLine(GetMostRecentBooks(db));
+            // ---Task 14. Most Recent Books
+            //Console.WriteLine(GetMostRecentBooks(db));
+
+            // ---Task 15. Increase Prices
+            //IncreasePrices(db);
+
+            // ---Task 16. Remove Books
+            //Console.WriteLine(RemoveBooks(db));
         }
 
         public static string GetBooksByAgeRestriction(BookShopContext context, string command)
@@ -235,6 +254,32 @@
             }
 
             return sb.ToString().TrimEnd();
+        }
+
+        public static void IncreasePrices(BookShopContext context)
+        {
+            var books = context.Books
+                .Where(x => x.ReleaseDate.Value.Year < 2010)
+                .ToArray();
+
+            foreach (var book in books)
+            {
+                book.Price += 5;
+            }
+
+            context.SaveChanges();
+        }
+
+        public static int RemoveBooks(BookShopContext context)
+        {
+            var books = context.Books
+                .Where(x => x.Copies < 4200)
+                .ToArray();
+
+            context.Books.RemoveRange(books);
+            context.SaveChanges();
+
+            return books.Length;
         }
     }
 }
