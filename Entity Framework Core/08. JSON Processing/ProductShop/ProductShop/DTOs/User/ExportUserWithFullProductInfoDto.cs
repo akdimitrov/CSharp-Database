@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Linq;
 using Newtonsoft.Json;
 
 namespace ProductShop.DTOs.User
@@ -9,7 +7,7 @@ namespace ProductShop.DTOs.User
     public class ExportUserWithFullProductInfoDto
     {
         [JsonProperty("usersCount")]
-        public int UsersCount { get; set; }
+        public int UsersCount => Users.Any() ? Users.Length : 0;
 
         [JsonProperty("users")]
         public ExportUserInfoDto[] Users { get; set; }

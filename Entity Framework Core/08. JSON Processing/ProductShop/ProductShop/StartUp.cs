@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ProductShop.Data;
 using ProductShop.DTOs.Categories;
@@ -49,7 +48,7 @@ namespace ProductShop
             //Console.WriteLine(GetCategoriesByProductsCount(context));
 
             // ---Task 08. Export Users and Products
-            Console.WriteLine(GetUsersWithProducts(context));
+            //Console.WriteLine(GetUsersWithProducts(context));
         }
 
         public static string ImportUsers(ProductShopContext context, string inputJson)
@@ -144,36 +143,29 @@ namespace ProductShop
 
         public static string GetUsersWithProducts(ProductShopContext context)
         {
-            var users = context.Users
-                .Include(x => x.ProductsSold)
-                .Where(x => x.ProductsSold.Any(p => p.BuyerId.HasValue))
-                .ToArray()
-                .OrderByDescending(x => x.ProductsSold.Count(x => x.BuyerId.HasValue))
-                .Select(x => new ExportUserInfoDto()
-                {
-                    FirstName = x.FirstName,
-                    LastName = x.LastName,
-                    Age = x.Age,
-                    SoldProducts = new ExportSoldProductFullInfoDto()
-                    {
-                        Count = x.ProductsSold
-                            .Count(p => p.BuyerId.HasValue),
-                        Products = x.ProductsSold
-                            .Where(p => p.BuyerId.HasValue)
-                            .Select(x => new ExportSoldProductInfoDto()
-                            {
-                                Name = x.Name,
-                                Price = x.Price
-                            })
-                            .ToArray()
-                    }
-                })
-                .ToArray();
-
             ExportUserWithFullProductInfoDto usersFullInfo = new ExportUserWithFullProductInfoDto()
             {
-                UsersCount = users.Count(),
-                Users = users
+                Users = context.Users
+                    .Where(x => x.ProductsSold.Any(p => p.BuyerId.HasValue))
+                    .OrderByDescending(x => x.ProductsSold.Count(x => x.BuyerId.HasValue))
+                    .Select(x => new ExportUserInfoDto()
+                    {
+                        FirstName = x.FirstName,
+                        LastName = x.LastName,
+                        Age = x.Age,
+                        ProductsSold = new ExportSoldProductFullInfoDto()
+                        {
+                            ProductsSold = x.ProductsSold
+                                .Where(p => p.BuyerId.HasValue)
+                                .Select(x => new ExportSoldProductInfoDto()
+                                {
+                                    Name = x.Name,
+                                    Price = x.Price
+                                })
+                                .ToArray()
+                        }
+                    })
+                    .ToArray()
             };
 
             var settings = new JsonSerializerSettings()

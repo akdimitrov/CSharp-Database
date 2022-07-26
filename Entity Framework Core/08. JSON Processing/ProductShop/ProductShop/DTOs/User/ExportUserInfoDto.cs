@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using ProductShop.DTOs.Products;
 
 namespace ProductShop.DTOs.User
@@ -19,6 +16,6 @@ namespace ProductShop.DTOs.User
         public int? Age { get; set; }
 
         [JsonProperty("soldProducts")]
-        public ExportSoldProductFullInfoDto SoldProducts { get; set; }
+        public ExportSoldProductFullInfoDto ProductsSold { get; set; }
     }
 }

@@ -15,19 +15,16 @@ namespace ProductShop
             //Users
             CreateMap<ImportUserDto, User>();
             CreateMap<User, ExportUserWithSoldProductsDto>()
-                .ForMember(x => x.SoldProducts, 
-                    y => y.MapFrom(s => 
+                .ForMember(x => x.SoldProducts,
+                    y => y.MapFrom(s =>
                         s.ProductsSold.Where(p => p.BuyerId.HasValue)));
-
-            CreateMap<User, ExportUserInfoDto>();
 
             //Products
             CreateMap<ImportProductDto, Product>();
             CreateMap<Product, ExportProductInRangeDto>()
                 .ForMember(x => x.SellerFullName, y => y.MapFrom(s => $"{s.Seller.FirstName} {s.Seller.LastName}"));
-            CreateMap<Product, ExportUserSoldProductsDto>();
 
-            CreateMap<Product, ExportSoldProductInfoDto>();
+            CreateMap<Product, ExportUserSoldProductsDto>();
 
             //Categories
             CreateMap<ImportCategoriesDto, Category>();

@@ -1,6 +1,5 @@
 ﻿namespace ProductShop.Data
 {
-    using JetBrains.Annotations;
     using Microsoft.EntityFrameworkCore;
 
     using Models;
@@ -36,7 +35,7 @@
         {
             modelBuilder.Entity<CategoryProduct>(entity =>
             {
-                entity.HasKey(x => new { x.CategoryId, x.ProductId});
+                entity.HasKey(x => new { x.CategoryId, x.ProductId });
             });
 
             modelBuilder.Entity<User>(entity =>
