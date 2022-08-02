@@ -94,7 +94,7 @@ namespace RealEstates.Services
                 .Take(count)
                 .ToArray();
 
-            var result = XmlDeserializer(properties, "Properties");
+            var result = SerializeXml(properties, "Properties");
 
             return result;
         }
@@ -110,7 +110,7 @@ namespace RealEstates.Services
             return properties;
         }
 
-        private string XmlDeserializer<T>(T collection, string xmlRootAttributeName)
+        private string SerializeXml<T>(T collection, string xmlRootAttributeName)
         {
             var sb = new StringBuilder();
             var writer = new StringWriter(sb);
