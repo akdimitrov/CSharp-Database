@@ -1,5 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Xml.Serialization;
 using AutoMapper.QueryableExtensions;
 using RealEstates.Data;
 using RealEstates.Models;
@@ -76,19 +79,24 @@ namespace RealEstates.Services
                 .Average(x => x.Size);
         }
 
-        public IEnumerable<PropertyInfoFullDataDto> GetFullData(int count)
+        public string GetFullData(int count, int minYear, int minSize, int maxSize, 
+            int minFloor, int maxFloor, int minPrice, int maxPrice)
         {
             var properties = dbContext.Properties
-                .Where(x => x.Floor.HasValue && x.Floor.Value > 1 && x.Floor.Value <= 8 &&
-                    x.Year.HasValue && x.Year.Value > 2015)
+                .Where(x => x.Floor.HasValue && x.Floor >= minFloor && x.Floor <= maxFloor &&
+                    x.Year.HasValue && x.Year >= minYear &&
+                    x.Size >= minSize && x.Size <= maxSize &&
+                    x.Price.HasValue && x.Price >= minPrice && x.Price <= maxPrice)
                 .ProjectTo<PropertyInfoFullDataDto>(Mapper.ConfigurationProvider)
                 .OrderByDescending(x => x.Price)
                 .ThenBy(x => x.Size)
                 .ThenBy(x => x.Year)
                 .Take(count)
-                .ToList();
+                .ToArray();
 
-            return properties;
+            var result = XmlDeserializer(properties, "Properties");
+
+            return result;
         }
 
         public IEnumerable<PropertyInfoDto> Search(int minPrice, int maxPrice, int minSize, int maxSize)
@@ -100,6 +108,19 @@ namespace RealEstates.Services
                 .ToList();
 
             return properties;
+        }
+
+        private string XmlDeserializer<T>(T collection, string xmlRootAttributeName)
+        {
+            var sb = new StringBuilder();
+            var writer = new StringWriter(sb);
+            var namespaces = new XmlSerializerNamespaces();
+            namespaces.Add(string.Empty, string.Empty);
+
+            var serializer = new XmlSerializer(typeof(T), new XmlRootAttribute(xmlRootAttributeName));
+            serializer.Serialize(writer, collection, namespaces);
+
+            return sb.ToString().TrimEnd();
         }
     }
 }

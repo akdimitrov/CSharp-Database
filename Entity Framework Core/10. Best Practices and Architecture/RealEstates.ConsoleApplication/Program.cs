@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 using Microsoft.EntityFrameworkCore;
 using RealEstates.Data;
 using RealEstates.Services;
+using RealEstates.Services.Models;
 
 namespace RealEstates.ConsoleApplication
 {
@@ -24,7 +29,7 @@ namespace RealEstates.ConsoleApplication
                 Console.WriteLine("3. Average price per square meter");
                 Console.WriteLine("4. Add tag");
                 Console.WriteLine("5. Bulk tag to properties");
-                Console.WriteLine("6. Property full info");
+                Console.WriteLine("6. Property full info XML");
                 Console.WriteLine("0. EXIT");
 
                 bool parsed = int.TryParse(Console.ReadLine(), out int option);
@@ -66,17 +71,31 @@ namespace RealEstates.ConsoleApplication
 
         private static void PropertyFullInfo(ApplicationDbContext db)
         {
-            Console.WriteLine("Count of properties:");
+            Console.Write("Count of properties: ");
             int count = int.Parse(Console.ReadLine());
+            Console.Write("Min year: ");
+            int minYear = int.Parse(Console.ReadLine());
+
+            Console.Write("Min size: ");
+            int minSize = int.Parse(Console.ReadLine());
+            Console.Write("Max size: ");
+            int maxSize = int.Parse(Console.ReadLine());
+
+            Console.Write("Min floor: ");
+            int minFloor = int.Parse(Console.ReadLine());
+            Console.Write("Max floor: ");
+            int maxFloor = int.Parse(Console.ReadLine());
+
+            Console.Write("Min price: ");
+            int minPrice = int.Parse(Console.ReadLine());
+            Console.Write("Max price: ");
+            int maxPrice = int.Parse(Console.ReadLine());
 
             IPropertiesService propertiesService = new PropertiesService(db);
-            var properties = propertiesService.GetFullData(count);
-            foreach (var property in properties)
-            {
-                Console.Write($"{property.Id} | {property.DistrictName} | {property.Size} | {property.Price} | {property.PropertyType} | {property.BuildingType} | {property.Year} | ");
-                Console.WriteLine(string.Join(", ", property.Tags.Select(x => x.Name)));
-            }
+            var properties = propertiesService.GetFullData(
+                count, minYear, minSize, maxSize, minFloor, maxFloor, minPrice, maxPrice);
 
+            Console.WriteLine(properties);
         }
 
         private static void BulkTagToProperties(ApplicationDbContext db)
@@ -125,7 +144,7 @@ namespace RealEstates.ConsoleApplication
         private static void PropertySearch(ApplicationDbContext db)
         {
             Console.WriteLine("Min price:");
-            int minPrice = int.Parse(Console.ReadLine());
+            int minPrice = int.Parse(Console.ReadLine());   
             Console.WriteLine("Max price:");
             int maxPrice = int.Parse(Console.ReadLine());
             Console.WriteLine("Min size:");
