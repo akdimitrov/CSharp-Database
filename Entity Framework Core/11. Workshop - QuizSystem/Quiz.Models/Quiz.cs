@@ -7,7 +7,6 @@ namespace Quiz.Models
         public Quiz()
         {
             Questions = new HashSet<Question>();
-            UserAnswers = new HashSet<UserAnswer>();
         }
 
         public int Id { get; set; }
@@ -15,7 +14,5 @@ namespace Quiz.Models
         public string Title { get; set; }
 
         public ICollection<Question> Questions { get; set; }
-
-        public ICollection<UserAnswer> UserAnswers { get; set; }
     }
 }

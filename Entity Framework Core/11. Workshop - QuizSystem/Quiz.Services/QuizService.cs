@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Quiz.Data;
+using Quiz.Models;
 using Quiz.Services.Models;
 
 namespace Quiz.Services
@@ -40,13 +41,17 @@ namespace Quiz.Services
 
             var quizViewModel = new QuizViewModel
             {
-                Id = quiz.Id,
+                Id = quizId,
                 Title = quiz.Title,
-                Questions = quiz.Questions.Select(q => new QuestionViewModel
+                Questions = quiz.Questions
+                .OrderBy(r => Guid.NewGuid())
+                .Select(q => new QuestionViewModel
                 {
                     Id = q.Id,
                     Title = q.Title,
-                    Answers = q.Answers.Select(a => new AnswerViewModel
+                    Answers = q.Answers
+                    .OrderBy(r => Guid.NewGuid())
+                    .Select(a => new AnswerViewModel
                     {
                         Id = a.Id,
                         Title = a.Title
@@ -57,6 +62,73 @@ namespace Quiz.Services
             };
 
             return quizViewModel;
+        }
+
+        public IEnumerable<UserQuizViewModel> GetQuizesByUserName(string userName)
+        {
+            var quizes = dbContext.Quizes
+                .Select(x => new UserQuizViewModel
+                {
+                    QuizId = x.Id,
+                    Title = x.Title
+                })
+                .ToList();
+
+            foreach (var quiz in quizes)
+            {
+                var questionsCount = dbContext.UserAnswers
+                        .Count(ua => ua.IdentityUser.UserName == userName
+                                && ua.Question.QuizId == quiz.QuizId);
+
+                if (questionsCount == 0)
+                {
+                    quiz.Status = QuizStatus.NotStarted;
+                    continue;
+                }
+
+                var answeredQuestions = dbContext.UserAnswers
+                        .Count(ua => ua.IdentityUser.UserName == userName
+                                && ua.Question.QuizId == quiz.QuizId
+                                && ua.AnswerId.HasValue);
+
+
+                quiz.Status = answeredQuestions == questionsCount
+                    ? QuizStatus.Finished
+                    : QuizStatus.InProgress;
+            }
+
+            return quizes;
+        }
+
+        public void StartQuiz(string userName, int quizId)
+        {
+            if (dbContext.UserAnswers.Any(x => x.IdentityUser.UserName == userName
+                && x.Question.QuizId == quizId))
+            {
+                return;
+            }
+
+            var userId = dbContext.Users
+                .Where(x => x.UserName == userName)
+                .Select(x => x.Id)
+                .FirstOrDefault();
+
+            var questions = dbContext.Questions
+                .Where(x => x.QuizId == quizId)
+                .Select(x => new { x.Id })
+                .ToList();
+
+            foreach (var question in questions)
+            {
+                dbContext.UserAnswers.Add(new UserAnswer
+                {
+                    AnswerId = null,
+                    IdentityUserId = userId,
+                    QuestionId = question.Id
+                });
+            }
+
+            dbContext.SaveChanges();
         }
     }
 }

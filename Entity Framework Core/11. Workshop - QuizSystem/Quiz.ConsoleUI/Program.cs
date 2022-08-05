@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Quiz.Data;
 using Quiz.Services;
 
@@ -17,6 +19,12 @@ namespace Quiz.ConsoleUI
             ConfigureServices(serviceCollection);
             var serviceProvider = serviceCollection.BuildServiceProvider();
 
+            //var dbContext = serviceProvider.GetService<ApplicationDbContext>();
+            //dbContext.Database.Migrate();
+
+            //var jsonInportService = serviceProvider.GetService<IJsonImportService>();
+            //jsonInportService.Import("EF-Core-Quiz.json", "EF Core Test v2");
+
             //var questionService = serviceProvider.GetService<IQuestionService>();
             //questionService.Add("1+1", 1);
 
@@ -26,9 +34,10 @@ namespace Quiz.ConsoleUI
             //var userAnswerService = serviceProvider.GetService<IUserAnswerService>();
             //userAnswerService.AddUserAnswer("09cb8789-c2f6-45c3-a6fa-9615a0e7f460", 1, 2, 1);
 
-            var userAnswerService = serviceProvider.GetService<IUserAnswerService>();
-            var result = userAnswerService.GetUserResult("09cb8789-c2f6-45c3-a6fa-9615a0e7f460", 1);
-            Console.WriteLine(result);
+            //var userAnswerService = serviceProvider.GetService<IUserAnswerService>();
+            //var result = userAnswerService.GetUserResult("09cb8789-c2f6-45c3-a6fa-9615a0e7f460", 1);
+
+            //Console.WriteLine(result);
         }
 
         private static void ConfigureServices(IServiceCollection services)
@@ -48,6 +57,7 @@ namespace Quiz.ConsoleUI
             services.AddTransient<IQuestionService, QuestionService>();
             services.AddTransient<IAnswerService, AnswerService>();
             services.AddTransient<IUserAnswerService, UserAnswerService>();
+            services.AddTransient<IJsonImportService, JsonImportService>();
         }
     }
 }

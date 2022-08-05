@@ -19,51 +19,31 @@ namespace Quiz.Services
             this.dbContext = applicationDbContext;
         }
 
-        public void AddUserAnswer(string userId, int quizid, int questionId, int answerId)
+        public void AddUserAnswer(string userName, int questionId, int answerId)
         {
-            var userAnswer = new UserAnswer
-            {
-                IdentityUserId = userId,
-                QuizId = quizid,
-                QuestionId = questionId,
-                AnswerId = answerId
-            };
+            var userId = dbContext.Users
+               .Where(x => x.UserName == userName)
+               .Select(x => x.Id)
+               .FirstOrDefault();
 
-            dbContext.UserAnswers.Add(userAnswer);
+            var userAnswer = dbContext.UserAnswers
+                .FirstOrDefault(x => x.IdentityUserId == userId
+                                && x.QuestionId == questionId);
+
+            userAnswer.AnswerId = answerId;
             dbContext.SaveChanges();
         }
 
-        public void BulkAddUserAnswer(QuizInputModel quizInputModel)
+        public int GetUserResult(string userName, int quizId)
         {
-            var userAnswers = new List<UserAnswer>();
+            var userId = dbContext.Users
+               .Where(x => x.UserName == userName)
+               .Select(x => x.Id)
+               .FirstOrDefault();
 
-            foreach (var question in quizInputModel.Questions)
-            {
-                var userAnswer = new UserAnswer
-                {
-                    IdentityUserId = quizInputModel.UserId,
-                    QuizId = quizInputModel.QuizId,
-                    QuestionId = question.QuestionId,
-                    AnswerId = question.AnswerId
-                };
-
-                userAnswers.Add(userAnswer);
-            }
-
-            dbContext.AddRange(userAnswers);
-            dbContext.SaveChanges();
-        }
-
-        public int GetUserResult(string userId, int quizId)
-        {
-            var totalPoints = dbContext.Quizes
-                .Include(x => x.Questions)
-                .ThenInclude(x => x.Answers)
-                .ThenInclude(x => x.UserAnswers)
-                .Where(x => x.Id == quizId &&
-                    x.UserAnswers.Any(x => x.IdentityUserId == userId))
-                .SelectMany(x => x.UserAnswers)
-                .Where(x => x.Answer.IsCorrect)
+            var totalPoints = dbContext.UserAnswers
+                .Where(x => x.IdentityUserId == userId 
+                        && x.Question.QuizId == quizId)
                 .Sum(x => x.Answer.Points);
 
             return totalPoints;
